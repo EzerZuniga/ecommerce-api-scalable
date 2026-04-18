@@ -1,24 +1,69 @@
 # E-commerce API Scalable
 
-API REST profesional para e-commerce con arquitectura modular, JWT, PostgreSQL (Prisma), Swagger, caché con Redis y pruebas con Jest.
+<div align="center">
 
-## Stack
+![Node.js](https://img.shields.io/badge/Node.js-20+-339933?style=for-the-badge&logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express-4.x-000000?style=for-the-badge&logo=express&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 
-- Node.js + Express
-- PostgreSQL + Prisma ORM
-- JWT + bcrypt
-- Swagger (`/api/docs`)
-- Redis (caché opcional para listados de productos)
-- Winston + Morgan (logs)
-- Jest + Supertest (tests)
+**API RESTful profesional para e-commerce con autenticación JWT, carrito, órdenes, pagos simulados y arquitectura modular escalable**
+
+[Características](#-características) •
+[Instalación](#-instalación-rápida) •
+[Documentación](#-documentación) •
+[API](#-api-endpoints) •
+[Seguridad](#-seguridad)
+
+</div>
+
+---
+
+## Descripción
+
+**E-commerce API Scalable** es un backend moderno construido con Node.js, Express y Prisma que implementa un flujo completo de tienda online: autenticación, catálogo de productos, carrito de compras, creación de órdenes y checkout de pago simulado.
+
+### Objetivo
+
+Proveer una base robusta y limpia para proyectos reales de comercio electrónico, con buenas prácticas de seguridad, validaciones, manejo de errores y estructura mantenible.
+
+---
+
+## Características
+
+### Core Features
+- **Autenticación JWT**: Registro y login con tokens seguros
+- **Gestión de usuarios**: Perfil del usuario autenticado (`/api/users/me`)
+- **Catálogo de productos**: CRUD completo con control de rol admin
+- **Paginación y filtros**: Listado de productos por nombre y rango de precios
+- **Carrito de compras**: Agregar, listar y eliminar ítems
+- **Órdenes de compra**: Conversión de carrito a orden con cálculo de total
+- **Pago simulado**: Checkout que actualiza el estado de orden a `paid`
+
+### Technical Features
+- **Arquitectura modular por dominio** (`auth`, `users`, `products`, `cart`, `orders`, `payments`)
+- **Prisma ORM + PostgreSQL**
+- **Validaciones con Zod**
+- **Control de acceso por roles** (`ADMIN` / `CUSTOMER`)
+- **Manejo centralizado de errores HTTP**
+- **Logs con Winston + Morgan**
+- **Rate limiting y hardening básico con Helmet**
+- **Swagger/OpenAPI** para documentación interactiva
+- **Tests con Jest + Supertest**
+- **Redis opcional** para caché de listados
+
+---
 
 ## Arquitectura
 
+### Estructura del Proyecto
+
 ```text
 src/
-├── config/
-├── docs/
-├── middlewares/
+├── config/                 # DB, env, redis
+├── docs/                   # Swagger setup
+├── middlewares/            # auth, roles, validación, errores
 ├── modules/
 │   ├── auth/
 │   ├── users/
@@ -26,43 +71,103 @@ src/
 │   ├── cart/
 │   ├── orders/
 │   └── payments/
-├── routes/
-├── utils/
-├── app.js
-└── server.js
+├── routes/                 # Router principal
+├── utils/                  # helpers compartidos
+├── app.js                  # configuración Express
+└── server.js               # bootstrap del servidor
+
+prisma/
+├── schema.prisma
+└── seed.js
+
+tests/
+├── unit/
+└── app.health.test.js
 ```
 
-## Requisitos
+### Flujo de Capas
 
-- Node.js 20+
-- PostgreSQL 14+
-- Redis 7+ (opcional)
-
-## Variables de entorno
-
-1. Copia el archivo:
-
-```bash
-cp .env.example .env
+```mermaid
+graph TB
+    A[Routes] --> B[Controllers]
+    B --> C[Services]
+    C --> D[Prisma Client]
+    D --> E[(PostgreSQL)]
+    F[Middlewares] --> A
+    G[Error Handler] -.-> A
 ```
 
-2. Ajusta valores según tu entorno local.
+---
 
-## Instalación y ejecución local
+## Tecnologías
 
-```bash
-npm install
-npx prisma migrate dev --name init
-npx prisma generate
-node prisma/seed.js
-npm run dev
-```
+| Tecnología | Versión | Propósito |
+|-----------|---------|-----------|
+| **Node.js** | 20+ | Runtime principal |
+| **Express** | 4.x | Framework HTTP |
+| **Prisma** | 5.x | ORM y acceso a datos |
+| **PostgreSQL** | 14+ | Base de datos principal |
+| **JWT** | 9.x | Autenticación por token |
+| **Zod** | 3.x | Validación de datos |
+| **Swagger** | 6.x / UI 5.x | Documentación API |
+| **Redis (opcional)** | 7+ | Caché |
+| **Jest + Supertest** | 29.x / 7.x | Testing |
 
-Servidor: `http://localhost:3000`
+---
 
-Swagger: `http://localhost:3000/api/docs`
+## Instalación Rápida
 
-## Endpoints principales
+### Prerequisitos
+
+- **Node.js 20+**
+- **PostgreSQL 14+**
+- **Redis 7+** (opcional)
+
+### Pasos de instalación
+
+1. **Clonar repositorio**
+   ```bash
+   git clone <tu-repo>
+   cd ecommerce-api-scalable
+   ```
+
+2. **Instalar dependencias**
+   ```bash
+   npm install
+   ```
+
+3. **Configurar entorno**
+   ```bash
+   cp .env.example .env
+   ```
+
+4. **Migrar y generar Prisma**
+   ```bash
+   npx prisma migrate dev --name init
+   npx prisma generate
+   ```
+
+5. **Cargar datos seed**
+   ```bash
+   node prisma/seed.js
+   ```
+
+6. **Levantar servidor**
+   ```bash
+   npm run dev
+   ```
+
+---
+
+## Documentación
+
+- **API base**: `http://localhost:3000`
+- **Health check**: `GET /health`
+- **Swagger UI**: `http://localhost:3000/api/docs`
+
+---
+
+## API Endpoints
 
 ### Auth
 - `POST /api/auth/register`
@@ -90,84 +195,56 @@ Swagger: `http://localhost:3000/api/docs`
 ### Payments
 - `POST /api/payments/checkout`
 
-## Reglas de negocio destacadas
+---
 
-- Validación de stock antes de crear orden.
-- Descuento de stock dentro de transacción en base de datos.
-- Prevención de condiciones de carrera al decrementar stock.
-- Checkout simulado:
-  - `cardNumber = 4111111111111111` => pago aprobado.
-  - otro número => pago rechazado.
+## Seguridad
 
-## Ejemplos rápidos
+### Autenticación JWT
 
-### Registro
+1. Hacer login con credenciales válidas.
+2. Recibir token JWT en la respuesta.
+3. Enviar el token en `Authorization: Bearer <token>`.
+4. Acceder a endpoints protegidos según rol.
 
-`POST /api/auth/register`
+### Control de roles
 
-```json
-{
-  "name": "Jose",
-  "email": "jose@example.com",
-  "password": "12345678"
-}
+- `ADMIN`: CRUD de productos y visibilidad global de órdenes.
+- `CUSTOMER`: flujo de compra propio (carrito, órdenes, pagos).
+
+---
+
+## Testing
+
+```bash
+npm test
 ```
 
-### Login
+Incluye pruebas de:
+- salud de aplicación y fallback 404
+- utilidades de paginación
+- validación de checkout
 
-`POST /api/auth/login`
+---
 
-```json
-{
-  "email": "jose@example.com",
-  "password": "12345678"
-}
-```
+## Datos iniciales (seed)
 
-### Crear orden desde carrito
+Se crea automáticamente:
+- Usuario admin: `admin@ecommerce.com` / `admin12345`
+- Productos demo
 
-`POST /api/orders` con `Authorization: Bearer <token>`
-
-### Pago simulado
-
-`POST /api/payments/checkout`
-
-```json
-{
-  "orderId": "YOUR_ORDER_ID",
-  "cardNumber": "4111111111111111"
-}
-```
-
-Respuesta:
-
-```json
-{
-  "message": "Pago exitoso",
-  "orderId": "YOUR_ORDER_ID",
-  "orderStatus": "paid"
-}
-```
+---
 
 ## Scripts útiles
 
-- `npm run dev` - modo desarrollo con nodemon
-- `npm start` - modo producción
-- `npm test` - ejecutar tests
+- `npm run dev` - desarrollo con nodemon
+- `npm start` - ejecución estándar
+- `npm test` - suite de tests
 - `npm run prisma:generate`
 - `npm run prisma:migrate`
 - `npm run prisma:seed`
 
-## Estado inicial (seed)
+---
 
-El seed crea:
-- Usuario admin: `admin@ecommerce.com` / `admin12345`
-- Productos demo para pruebas
+## Licencia
 
-## Próximos upgrades recomendados
-
-- Integrar pasarela real (Stripe/MercadoPago)
-- Webhooks de pago
-- Refresh tokens
-- CI/CD con GitHub Actions
-- Tests de integración con base de datos de testing
+Este proyecto está bajo la licencia **MIT**.
